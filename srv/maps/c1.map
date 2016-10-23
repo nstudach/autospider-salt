@@ -1,0 +1,24 @@
+do-ams3-2048:
+  - c1-ams3-1:
+      grains:
+        campaign: c1
+
+do-sgp1-2048:
+  - c1-sgp1-1:
+      grains:
+        campaign: c1
+
+do-sfo1-2048:
+  - c1-sfo1-1:
+      grains:
+        campaign: c1
+
+do-tor1-2048:
+  - c1-tor1-1:
+      grains:
+        campaign: c1
+
+do-lon1-2048:
+  - c1-lon1-1:
+      grains:
+        campaign: c1
