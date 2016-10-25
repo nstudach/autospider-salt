@@ -5,18 +5,19 @@ import time
 
 def _send_salt_event(component, suffix, finished,
         success, error = None, message = None):
-    """Transmit an event to the salt master
+    """
+    Transmit an event to the salt master
 
     The event will be tagged 'mami/pathspider/<component>/<suffix>/<minion-id>'
     and will contain the vaules of finished, success, error and message.
 
-    Arguments:
-    component -- should be ('spider', 'upload', 'measurement')
-    suffix -- should be in ('completed', 'failed', 'started')
-    finished -- bool
-    success -- bool
-    error -- str (optional)
-    message -- str (optional)
+    :type component: str
+    :type suffix: str
+    :param bool finished: Indicate if the event signifies that something was
+                     fininshed
+    :param bool success: Indicate if the the action was succesfull
+    :param str error: Name of the error that occured
+    :param bool message: Extra information about the event
     """
 
     # this comunicates with the outside world, so we should use some protection
@@ -36,18 +37,18 @@ def _send_salt_event(component, suffix, finished,
                              'error': error,
                              'message': message})
 
-def _execute_spider(inputstream, outputstream, errorstream, timeout):
-    """Execute the Pathspider command
+def _execute_spider(inputfile, outputfile, errorfile, timeout=0):
+    """
+    Execute the Pathspider command
 
     The patspider executable will be executed. It will be allowed to run for a
     maximum of <timeout> seconds, after which it will be killed.
 
-    Arguments:
-    inputstream -- a stream (e.g. an opened file) to be connected to stdin
-    outputstream -- a stream (e.g. an opened file) to be connected to stdout
-    errortream -- a stream (e.g. an opened file) to be connected to stderr
-    timeout -- int, specifying the maximum time pathspider may run in seconds
-               set to 0 to disable
+    :param file inputfile: a file object to be attached to stdin of pathspider 
+    :param file outputfile: a file object to be connected to stdout
+    :param file errorfile:  a file ojbect to be connected to stderr
+    :param int timeout: maximum time in seconds to wait for pathspider to return
+                        if set to zero, we will wait forever
     """
 
     starttime = datetime.datetime.now()
@@ -55,7 +56,7 @@ def _execute_spider(inputstream, outputstream, errorstream, timeout):
     _send_salt_event('spider', 'started', finished = False, success = True)
     # run pathspider
     spider = subprocess.Popen("pathspider -i eth0 -w 50 ecn", shell = True, 
-            stdout = outputstream, stdin = inputstream, stderr = errorstream)
+            stdout = outputfile, stdin = inputfile, stderr = errorfile)
 
     # Wait for the spider to finish, and make sure it does not take to long
     while spider.poll() == None:
@@ -63,7 +64,8 @@ def _execute_spider(inputstream, outputstream, errorstream, timeout):
         currenttime = datetime.datetime.now()
         timedelta = currenttime - starttime
         
-        # never true if timeout is zero, because then timeout management is disabled.
+        # never true if timeout is zero, 
+        # because then timeout management is disabled.
         if timeout and timedelta > datetime.timedelta(seconds = timeout):
             _send_salt_event( 'spider', 'failed', finished = True,
                     success = False, error = "Pathspider timeout")
@@ -71,7 +73,7 @@ def _execute_spider(inputstream, outputstream, errorstream, timeout):
         
         time.sleep(10) 
             
-    #return True if measurement was sucessfull
+    # return True if measurement was sucessfull
     if spider.returncode == 0:
         _send_salt_event('spider', 'completed', finished = True,
                 success = True)
@@ -82,13 +84,14 @@ def _execute_spider(inputstream, outputstream, errorstream, timeout):
         return False
 
 def run(inputfile, timeout = 0):
-    """Execute a Pathspider measurement
+    """
+    Execute a Pathspider measurement
 
     This function is exposed to salt.
 
-    Arguments:
-    inputfile -- str, path to Pathspider input file
-    timout -- int, maximum runtime of Pathspider command, in seconds.
+    :param str inputfile: path to Pathspider inputfile
+    :param int timeout: maximum time in seconds to wait for pathspider to return
+                        if set to zero, we will wait forever
     """
 
     _send_salt_event('measurement', 'started', finished = False,
@@ -112,5 +115,5 @@ def run(inputfile, timeout = 0):
 # TODO: Upload results to observatory
      
     _send_salt_event('measurement', 'completed', finished = True,
-        success = True)
+            success = True)
     return True
