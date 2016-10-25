@@ -7,8 +7,8 @@ notify-slack:
       - message='Pathspider measurement completed.'
       - icon='https://devae.re/f/eth/pathspider/icons/info.png'
 
-#start-new-run:
-#  local.state.apply:
-#    - tgt: {{ data['id'] }}
-#    - arg:
-#      - pathspider-install-and-run
+start-new-run:
+  local.state.apply:
+    - tgt: {{ data['id'] }}
+    - arg:
+      - pathspider-run
