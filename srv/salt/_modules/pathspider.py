@@ -2,6 +2,7 @@ import salt
 import subprocess
 import datetime
 import time
+import shlex
 
 def _send_salt_event(component, suffix, finished,
         success, error = None, message = None):
@@ -37,7 +38,8 @@ def _send_salt_event(component, suffix, finished,
                              'error': error,
                              'message': message})
 
-def _execute_spider(inputfile, outputfile, errorfile, timeout=0):
+def _execute_spider(inputfile, outputfile, errorfile,
+        timeout=0, pathspider_args = []):
     """
     Execute the Pathspider command
 
@@ -55,7 +57,8 @@ def _execute_spider(inputfile, outputfile, errorfile, timeout=0):
 
     _send_salt_event('spider', 'started', finished = False, success = True)
     # run pathspider
-    spider = subprocess.Popen("pathspider -i eth0 -w 50 ecn", shell = True, 
+    spider = subprocess.Popen(["pathspider"] + pathspider_args, 
+    #spider = subprocess.Popen("pathspider -i eth0 -w 50 ecn", shell=True 
             stdout = outputfile, stdin = inputfile, stderr = errorfile)
 
     # Wait for the spider to finish, and make sure it does not take to long
@@ -83,7 +86,7 @@ def _execute_spider(inputfile, outputfile, errorfile, timeout=0):
                 success = False, error = "Nonzero return value")
         return False
 
-def run(inputfile, timeout = 0):
+def run(inputfile, argstring=None, timeout=0, debug=0):
     """
     Execute a Pathspider measurement
 
@@ -104,7 +107,13 @@ def run(inputfile, timeout = 0):
     errfile = open('/var/pathspider/pathspider-stderr-' + timestring, 'w')
     infile = open(inputfile, 'r')
 
-    spider_success = _execute_spider(infile, outfile, errfile, timeout)
+    #Set default arguments, and split them out if needed
+    if argstring == None:
+        argstring = "-i eth0 -w 50 ecn"
+    pathspider_args = shlex.split(argstring)
+
+    spider_success = _execute_spider(infile, outfile, errfile, timeout,
+            pathspider_args)
 
     # Looks like the meausrement failed, no point in going on...
     if spider_success == False:
