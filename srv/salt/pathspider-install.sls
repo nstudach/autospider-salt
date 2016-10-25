@@ -25,6 +25,10 @@ pip-install-pathspider:
     - source: True
     - bin_env: /usr/bin/pip3
 
+make-output-dir:
+  file.directory:
+      - name: /var/pathspider
+
 sync-modules:
   module.run:
     - name: saltutil.sync_modules

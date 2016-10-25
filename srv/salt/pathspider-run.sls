@@ -5,10 +5,6 @@ get-input-file:
     - name: /tmp/pathspider-in.csv
     - source: salt://pathspider-inputs/{{inputfile}}.csv
 
-make-output-dir:
-  file.directory:
-    - name: /var/pathspider
-
 run-pathspider:
   module.run:
     - name: pathspider.run
