@@ -11,4 +11,4 @@ notify-slack:
 #  local.state.apply:
 #    - tgt: {{ data['id'] }}
 #    - arg:
-#      - pathspider-run
+#      - pathspider-install-and-run
