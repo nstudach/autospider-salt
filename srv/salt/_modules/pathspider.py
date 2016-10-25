@@ -103,8 +103,13 @@ def run(inputfile, argstring=None, timeout=0, debug=0):
     timestring = datetime.datetime.now().strftime('%Y-%m-%dT%H%M%S')
 
     # open al the files to feed to pathspider
-    outfile = open('/var/pathspider/pathspider-stdout-' + timestring, 'w')
-    errfile = open('/var/pathspider/pathspider-stderr-' + timestring, 'w')
+    if debug:
+        # static filenames, so we can monitor them with tail
+        outfile = open('/var/pathspider/pathspider-stdout', 'w')
+        errfile = open('/var/pathspider/pathspider-stderr', 'w')
+    else: 
+        outfile = open('/var/pathspider/pathspider-stdout-' + timestring, 'w')
+        errfile = open('/var/pathspider/pathspider-stderr-' + timestring, 'w')
     infile = open(inputfile, 'r')
 
     #Set default arguments, and split them out if needed
