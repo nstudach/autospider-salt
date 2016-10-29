@@ -165,12 +165,20 @@ class Web():
         for profile in self.profiles:
             profile.spawn()
 
+    def pretty_grains(self):
+        for grain in self.grains:
+            result = "<Grain: '{}'='{}'>".format(grain, self.grains[grain])
+            yield result
+
     def pretty_string(self):
         info_string = str(self) + '\n'
         for profile in self:
             info_string = info_string + ' '*4 + str(profile) + '\n'
             for minion in profile:
                 info_string = info_string + ' '*8 + str(minion) + '\n'
+        
+        for grain in self.pretty_grains():
+            info_string = info_string + ' '*4 + grain + '\n'
 
         return info_string
 
