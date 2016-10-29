@@ -61,7 +61,7 @@ class Minion():
         # To be safe we just do it for every minion.
         client = salt.cloud.CloudClient(path=SALT_CLOUD_CONFIG)
         response = client.profile(self.profile.get_name(),
-                names=[minion.get_name(),], minion=self.get_config())
+                names=[self.get_name(),], minion=self.get_config())
 
         # Restrong stdout and stderr
         sys.stdout.close()
