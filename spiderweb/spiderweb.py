@@ -8,13 +8,13 @@ import random
 import salt.cloud
 
 TEMPFILE_LOCATION = "/tmp/spiderweb"
-
+SALT_CLOUD_CONFIG = "/etc/salt/cloud"
 
 def readout_config(path):
     config_file = open(path)
     config = json.loads(config_file.read())
     config_file.close()
-    
+
     return config
 
 class Minion():
@@ -27,7 +27,7 @@ class Minion():
             self.grains = grains
         else:
             grains = {}
-   
+
     def __repr__(self):
         string = "<Worker: {}>".format(self.name)
         return string
@@ -40,6 +40,36 @@ class Minion():
 
     def get_config(self):
         return {'grains': self.grains}
+
+    def spawn(self):
+        print("Spawning minion: {}".format(self.get_name()))
+
+        # Redirecting stdout and stderr to prevent screen pollution
+        # during creation of minions
+        if not os.path.exists(TEMPFILE_LOCATION):
+            os.makedirs(TEMPFILE_LOCATION)
+        tempfile = "{}/{}-creation.txt".format(TEMPFILE_LOCATION,
+            self.get_name())
+        print("Temporary redirecting stdout and stderr to {}".format(tempfile))
+        real_stdout = sys.stdout
+        sys.stdout = open(tempfile, 'w')
+        real_stderr = sys.stderr
+        sys.stderr = sys.stdout
+
+        # For some reason you have to create a new 'client'
+        # instance for every profile you want to use.
+        # To be safe we just do it for every minion.
+        client = salt.cloud.CloudClient(path=SALT_CLOUD_CONFIG)
+        response = client.profile(self.profile.get_name(),
+                names=[minion.get_name(),], minion=self.get_config())
+
+        # Restrong stdout and stderr
+        sys.stdout.close()
+        sys.stdout = real_stdout
+        sys.stderr = real_stderr
+        print("Stdout and stderr are back!")
+
+        print("CloudClient response: {}".format(response))
 
 class Profile():
     def __init__(self, name):
@@ -62,6 +92,11 @@ class Profile():
             self.counter = self.counter + 1
             self.minions.add(Minion(name, self, grains))
 
+    def spawn(self):
+        for minion in self.minions:
+            minion.spawn()
+
+
 class Web():
     WEB_NAME_CHARS = \
         '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
@@ -80,7 +115,7 @@ class Web():
         for i in range(self.WEB_NAME_LENGTH):
             name += random.choice(self.WEB_NAME_CHARS)
         self.name = name
-        
+
         return name
 
     def get_name(self):
@@ -92,7 +127,7 @@ class Web():
         config_file.close()
 
         self.verify_config()
-        
+
         self.read_grains_from_config()
         self.add_minions_from_config()
 
@@ -117,40 +152,31 @@ class Web():
                 count = self.config['minions'][profile],
                 grains = self.grains)
             self.profiles.add(new_profile)
-   
+
     def spawn(self):
         print("Starting to spawn web: {}".format(self.get_name()))
-        if not os.path.exists(TEMPFILE_LOCATION):
-            os.makedirs(TEMPFILE_LOCATION)
-        
-        for profile in self:
-            for minion in profile:
-                print("Spawning minion: {}".format(minion.get_name()))
-                tempfile = "{}/{}-creation.txt".format(TEMPFILE_LOCATION,
-                        minion.get_name())
 
-                print("Temporary redirecting stdout and stderr to {}".format(
-                        tempfile))
-                real_stdout = sys.stdout
-                sys.stdout = open(tempfile, 'w')
-                real_stderr = sys.stderr
-                sys.stderr = sys.stdout
-                # For some reason you have to create a new 'client'
-                # instance for every profile you want to use.
-                # To be safe we just do it for every minion.
-                client = salt.cloud.CloudClient(path='/etc/salt/cloud')
-                response = client.profile(profile.get_name().strip(), 
-                    names=[minion.get_name(),], minion=minion.get_config())
-                sys.stdout.close()
-                sys.stdout = real_stdout
-                sys.stderr = real_stderr
-                print("Stdout is back!")
-                print("CloudClient response: {}".format(response))
+        for profile in self.profiles:
+            profile.spawn()
 
 w = Web(sys.argv[1])
 
 for profile in w:
     for minion in profile:
         print(minion)
+
+"""
+ca = salt.cloud.CloudClient(path='/etc/salt/cloud')
+cb = salt.cloud.CloudClient(path='/etc/salt/cloud')
+cc = salt.cloud.CloudClient(path='/etc/salt/cloud')
+
+b=cb.profile('do-sgp1-512', names=['test2',])
+c=cc.profile('do-lon1-512', names=['test3',])
+a=ca.profile('do-sfo1-512', names=['test1',])
+
+print(a)
+print(b)
+print(c)
+"""
 
 w.spawn()
