@@ -4,11 +4,13 @@ import os
 import sys
 import json
 import random
+import shutil
 
 import salt.cloud
 
 TEMPFILE_LOCATION = "/tmp/spiderweb"
 SALT_CLOUD_CONFIG = "/etc/salt/cloud"
+INPUT_FILE_LOCATION = "/srv/salt/pathspider_inputs/"
 
 def readout_config(path):
     config_file = open(path)
@@ -162,8 +164,15 @@ class Web():
     def spawn(self):
         print("Starting to spawn web: {}".format(self.get_name()))
 
+        self.copy_input()
+
         for profile in self.profiles:
             profile.spawn()
+
+    def copy_input(self):
+        destination = "{}/{}.csv".format(INPUT_FILE_LOCATION, self.get_name())
+        shutil.copy(self.config['input_file'], destination)
+            
 
     def pretty_grains(self):
         for grain in self.grains:
