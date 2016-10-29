@@ -3,6 +3,7 @@ import subprocess
 import datetime
 import time
 import shlex
+import os
 
 def _send_salt_event(component, suffix, finished,
         success, error = None, message = None):
@@ -22,7 +23,7 @@ def _send_salt_event(component, suffix, finished,
     """
 
     # this comunicates with the outside world, so we should use some protection
-    assert component in ('spider', 'upload', 'measurement')
+    assert component in ('spider')
     assert suffix in ('failed', 'completed', 'started')
     assert type(finished) == bool
     assert type(success) == bool
@@ -86,7 +87,7 @@ def _execute_spider(inputfile, outputfile, errorfile,
                 success = False, error = "Nonzero return value")
         return False
 
-def run(inputfile, argstring=None, timeout=0, debug=0):
+def run(inputfile = None, argstring=None, timeout=0, debug=0):
     """
     Execute a Pathspider measurement
 
@@ -96,13 +97,27 @@ def run(inputfile, argstring=None, timeout=0, debug=0):
     :param int timeout: maximum time in seconds to wait for pathspider to return
                         if set to zero, we will wait forever
     """
-
-    _send_salt_event('measurement', 'started', finished = False,
-        success = True)
     
-    timestring = datetime.datetime.now().strftime('%Y-%m-%dT%H%M%S')
+    timestring = datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
+    
+    # Set default arguments, and split them out if needed
+    if argstring == None:
+        if 'pathspider_args' in __grains__:
+            argstring = __grains__['pathspider_args']
+        else:
+            argstring = "-i eth0 -w 50 ecn"
+    pathspider_args = shlex.split(argstring)
+   
+    if inputfile == None:
+        if os.path.isfile('/tmp/pathspider-in.csv'):
+            inputfile = '/tmp/pathspider-in.csv'
+        else:
+            return 'ERROR: no input file supplied'
 
-    # open al the files to feed to pathspider
+     
+    # open al the files to feed to pathspider 
+    if not os.path.exists('/var/pathspider'):
+        os.makedirs('var/pathspider')
     if debug:
         # static filenames, so we can monitor them with tail
         outfile = open('/var/pathspider/pathspider-stdout', 'w')
@@ -112,22 +127,8 @@ def run(inputfile, argstring=None, timeout=0, debug=0):
         errfile = open('/var/pathspider/pathspider-stderr-' + timestring, 'w')
     infile = open(inputfile, 'r')
 
-    #Set default arguments, and split them out if needed
-    if argstring == None:
-        argstring = "-i eth0 -w 50 ecn"
-    pathspider_args = shlex.split(argstring)
 
     spider_success = _execute_spider(infile, outfile, errfile, timeout,
             pathspider_args)
 
-    # Looks like the meausrement failed, no point in going on...
-    if spider_success == False:
-        _send_salt_event('measurement', 'failed', finished = True,
-                success = False, error = "Spider failed")
-        return False
-
-# TODO: Upload results to observatory
-     
-    _send_salt_event('measurement', 'completed', finished = True,
-            success = True)
-    return True
+    return spider_success
