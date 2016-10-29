@@ -29,7 +29,7 @@ class Minion():
             grains = {}
 
     def __repr__(self):
-        string = "<Worker: {}>".format(self.name)
+        string = "<Minion: {}>".format(self.name)
         return string
 
     def get_name(self):
@@ -80,6 +80,9 @@ class Profile():
     def __iter__(self):
         return self.minions.__iter__()
 
+    def __repr__(self):
+        return "<Profile: {}>".format(self.name)
+
     def get_name(self):
         return self.name
 
@@ -96,7 +99,6 @@ class Profile():
         for minion in self.minions:
             minion.spawn()
 
-
 class Web():
     WEB_NAME_CHARS = \
         '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
@@ -109,6 +111,9 @@ class Web():
 
     def __iter__(self):
         return self.profiles.__iter__()
+
+    def __repr__(self):
+        return "<Web: {}>".format(self.name)
 
     def generate_name(self):
         name = ''
@@ -134,6 +139,7 @@ class Web():
         return self.config
 
     def verify_config(self):
+        #TODO
         pass
 
     def read_grains_from_config(self):
@@ -159,24 +165,20 @@ class Web():
         for profile in self.profiles:
             profile.spawn()
 
-w = Web(sys.argv[1])
+    def pretty_string(self):
+        info_string = str(self) + '\n'
+        for profile in self:
+            info_string = info_string + ' '*4 + str(profile) + '\n'
+            for minion in profile:
+                info_string = info_string + ' '*8 + str(minion) + '\n'
 
-for profile in w:
-    for minion in profile:
-        print(minion)
+        return info_string
 
-"""
-ca = salt.cloud.CloudClient(path='/etc/salt/cloud')
-cb = salt.cloud.CloudClient(path='/etc/salt/cloud')
-cc = salt.cloud.CloudClient(path='/etc/salt/cloud')
-
-b=cb.profile('do-sgp1-512', names=['test2',])
-c=cc.profile('do-lon1-512', names=['test3',])
-a=ca.profile('do-sfo1-512', names=['test1',])
-
-print(a)
-print(b)
-print(c)
-"""
-
-w.spawn()
+if __name__ == "__main__":
+    w = Web(sys.argv[1])
+    print("You are about to spawn the following web:")
+    print(w.pretty_string())
+    user = raw_input("Continue? [Y/n] ")
+    if user in ('y', 'Y', ''):
+        w.spawn()
+    print('Goodnight')
