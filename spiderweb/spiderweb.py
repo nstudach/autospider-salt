@@ -144,7 +144,7 @@ class Web():
 
     def read_grains_from_config(self):
         grains = {}
-        grains['pathspider_flags'] = self.config['pathspider_flags']
+        grains['pathspider_args'] = self.config['pathspider_args']
         grains['when_done'] = self.config['when_done']
         grains['campaign'] = self.config['campaign']
         grains['web'] = self.get_name()
