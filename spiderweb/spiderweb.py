@@ -106,6 +106,7 @@ class Web():
         grains['pathspider_flags'] = self.config['pathspider_flags']
         grains['when_done'] = self.config['when_done']
         grains['campaign'] = self.config['campaign']
+        grains['web'] = self.get_name()
         self.grains = grains
 
     def add_minions_from_config(self):
