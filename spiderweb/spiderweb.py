@@ -107,6 +107,7 @@ class Web():
         grains['when_done'] = self.config['when_done']
         grains['campaign'] = self.config['campaign']
         grains['web'] = self.get_name()
+        grains['task'] = 'pathspider'
         self.grains = grains
 
     def add_minions_from_config(self):
@@ -136,14 +137,15 @@ class Web():
                 sys.stderr = sys.stdout
                 # For some reason you have to create a new 'client'
                 # instance for every profile you want to use.
-                #client = salt.cloud.CloudClient(path='/etc/salt/cloud')
-                #response = client.profile(profile.get_name().strip(), 
-                #    names=[minion.get_name(),], minion=minion.get_config())
+                # To be safe we just do it for every minion.
+                client = salt.cloud.CloudClient(path='/etc/salt/cloud')
+                response = client.profile(profile.get_name().strip(), 
+                    names=[minion.get_name(),], minion=minion.get_config())
                 sys.stdout.close()
                 sys.stdout = real_stdout
                 sys.stderr = real_stderr
                 print("Stdout is back!")
-                #print("CloudClient response: {}".format(response))
+                print("CloudClient response: {}".format(response))
 
 w = Web(sys.argv[1])
 
