@@ -58,6 +58,7 @@ def _execute_spider(inputfile, outputfile, errorfile,
 
     _send_salt_event('spider', 'started', finished = False, success = True)
     # run pathspider
+    # TODO error handling, what if pathspider is not installed?
     spider = subprocess.Popen(["pathspider"] + pathspider_args, 
     #spider = subprocess.Popen("pathspider -i eth0 -w 50 ecn", shell=True 
             stdout = outputfile, stdin = inputfile, stderr = errorfile)
@@ -109,7 +110,14 @@ def run(inputfile = None, argstring=None, timeout=0, debug=0):
             # that means that we cant unpack it. So we first get the actual
             # dict from the wrapper.
             grains = __grains__._dict()
-            argstring = argstring.format(**grains)
+            try:
+                argstring = argstring.format(**grains)
+            except KeyError:
+                _send_salt_event('spider', 'failed', finished = True,
+                    succes = False, error = 'KeyError',
+                    message = 'Looks like the pathspider_args string tries to'
+                              ' use grains that are not pressent')
+                return False
         else:
             argstring = "-i eth0 -w 50 ecn"
     pathspider_args = shlex.split(argstring)
