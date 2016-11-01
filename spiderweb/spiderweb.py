@@ -20,9 +20,22 @@ def readout_config(path):
     return config
 
 class Minion():
+    """
+    Represents a Saltstack minion to be instantiated.
+    """
+
     NAME_TEMPLATE = '{web}-{profile}-{index}'
 
     def __init__(self, name, profile, grains=None):
+        """
+        Create a new Minion
+
+        :param str name: the hostname of the Minion
+        :param profile: the Stalt Cloud profile for the minion
+        :type profile: :py:class:Profile
+        :param dict grains: grains to be added to the minion
+        """
+
         self.name = name
         self.profile = profile
         if grains:
@@ -31,19 +44,50 @@ class Minion():
             grains = {}
 
     def __repr__(self):
+        """
+        Return a string representation of the Minion
+
+        :returns: A string representing the minion
+        :rtype: str
+        """
+
         string = "<Minion: {}>".format(self.name)
         return string
 
     def get_name(self):
+        """
+        Get the name of the minion
+
+        :returns: The name of the minion
+        :rtype: str
+        """
+
         return self.name
 
     def get_profile(self):
+        """
+        Get the profile of the minion
+
+        :returns: the profile of the minion
+        :rtype: :py:class:Profile
+        """
         return profile
 
     def get_config(self):
+        """
+        Get the minion config to be passed to Salt Cloud
+
+        :rtype: dict
+        :returns: the minion configuration
+        """
+
         return {'grains': self.grains}
 
     def spawn(self):
+        """
+        Spawn the minion on the cloud provider
+        """
+
         print("Spawning minion: {}".format(self.get_name()))
 
         # Redirecting stdout and stderr to prevent screen pollution
@@ -74,7 +118,17 @@ class Minion():
         print("CloudClient response: {}".format(response))
 
 class Profile():
+    """
+    A class to represent Salt Cloud profiles
+    """
+    
     def __init__(self, name):
+        """
+        Create the profile
+
+        :param str name: the name of the profile
+        """
+
         self.name = name
         self.counter = 0
         self.minions = set()
@@ -86,9 +140,25 @@ class Profile():
         return "<Profile: {}>".format(self.name)
 
     def get_name(self):
+        """"
+        Get the name of the profile
+
+        :rtype: str
+        :returns: the name of the profile
+        """
+
         return self.name
 
     def add_minion(self, web , grains=None ,count=1):
+        """
+        Add a minion to the profile
+
+        :param web: the :py:class:Web the minion belongs to
+        :type web: :py:class:Web
+        :param dict grains: the grains that should be added to the minion
+        :param int count: the number of minions to add
+        """
+
         for i in range(count):
             name = Minion.NAME_TEMPLATE.format(
                     web = web.get_name(),
@@ -98,15 +168,31 @@ class Profile():
             self.minions.add(Minion(name, self, grains))
 
     def spawn(self):
+        """
+        Spawn all the minions in this profile
+        """
         for minion in self.minions:
             minion.spawn()
 
 class Web():
+    """
+    A class to represent a web of minions
+
+    A web is used to indicate a group of minions spawned together.
+    Typically all minions in a web belong to the same campaign.
+    """
+
     WEB_NAME_CHARS = \
         '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
     WEB_NAME_LENGTH = 10
 
     def __init__(self, config_file):
+        """
+        Create the web
+
+        :param str config_file: the path of the config file for the web
+        """
+
         self.profiles = set()
         self.generate_name()
         self.readout_config(config_file)
@@ -118,6 +204,13 @@ class Web():
         return "<Web: {}>".format(self.name)
 
     def generate_name(self):
+        """
+        Generate a random name for the web
+
+        :rtype: str
+        :return: a random name for the web
+        """
+
         name = ''
         for i in range(self.WEB_NAME_LENGTH):
             name += random.choice(self.WEB_NAME_CHARS)
@@ -126,9 +219,24 @@ class Web():
         return name
 
     def get_name(self):
+        """
+        Get the name of the web
+
+        :rtype: str
+        :returns: the name of the web
+        """
+
         return self.name
 
     def readout_config(self, path):
+        """
+        Read out a web config file
+
+        :param str path: the path of the JSON formated file to read
+        :rtype: dict
+        :returns: a dict containing the content of the config file
+        """
+
         config_file = open(path)
         self.config = json.loads(config_file.read())
         config_file.close()
@@ -141,10 +249,18 @@ class Web():
         return self.config
 
     def verify_config(self):
+        """
+        Verify the sanity of the config file
+        """
+
         #TODO
         pass
 
     def read_grains_from_config(self):
+        """
+        Read the grains that are present in the config
+        """
+
         grains = {}
         grains['pathspider_args'] = self.config['pathspider_args']
         grains['when_done'] = self.config['when_done']
@@ -154,6 +270,10 @@ class Web():
         self.grains = grains
 
     def add_minions_from_config(self):
+        """
+        Add the minions that are defined in the config to the web
+        """
+
         for profile in self.config['minions']:
             new_profile = Profile(profile)
             new_profile.add_minion(web = self,
@@ -162,6 +282,10 @@ class Web():
             self.profiles.add(new_profile)
 
     def spawn(self):
+        """
+        Spawn all profiles (and thus minion) in the web.
+        """
+
         print("Starting to spawn web: {}".format(self.get_name()))
 
         self.copy_input()
@@ -170,16 +294,35 @@ class Web():
             profile.spawn()
 
     def copy_input(self):
+        """
+        Copy the input file of the web to the Salt fileserver root,
+        and name it to the web.
+        """
+
         destination = "{}/{}.csv".format(INPUT_FILE_LOCATION, self.get_name())
         shutil.copy(self.config['input_file'], destination)
             
 
     def pretty_grains(self):
+        """
+        Generator that prints pretty strings for all grains in the web
+
+        :rtype: str
+        :yields: pretty strings for all the grains in the web
+        """
+
         for grain in self.grains:
             result = "<Grain: '{}'='{}'>".format(grain, self.grains[grain])
             yield result
 
     def pretty_string(self):
+        """
+        Create a pretty string representing the web
+
+        :rtype: str
+        :returns: a multiline string describing the web
+        """
+
         info_string = str(self) + '\n'
         for profile in self:
             info_string = info_string + ' '*4 + str(profile) + '\n'
