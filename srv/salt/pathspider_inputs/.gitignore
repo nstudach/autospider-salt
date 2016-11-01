@@ -1,2 +1,3 @@
 # ignore campaign input files. They can be BIG
-c*.csv
+*.csv
+!default.csv

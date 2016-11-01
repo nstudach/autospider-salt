@@ -14,6 +14,7 @@ apt-install:
       - python3-dev
       - python3-dnspython
       - python3-pip
+      - python3-requests
       - python-pip
       - git
     - fromrepo: testing
