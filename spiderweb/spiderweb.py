@@ -3,6 +3,7 @@
 import os
 import sys
 import json
+import copy
 import random
 import shutil
 import argparse
@@ -266,10 +267,7 @@ class Web():
         Read the grains that are present in the config
         """
 
-        grains = {}
-        grains['pathspider_args'] = self.config['pathspider_args']
-        grains['when_done'] = self.config['when_done']
-        grains['campaign'] = self.config['campaign']
+        grains = copy.deepcopy(self.config)
         grains['web'] = self.get_name()
         grains['task'] = 'pathspider'
         self.grains = grains
