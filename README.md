@@ -37,6 +37,7 @@ we will add a repo hosted by SaltStack
     ```
     minion:
       master: << hostname or IP of the box you are setting this up on >>
+    
     ```
     This will tell the workers (Salt Minions) what command server (Salt Master)
     they should connect to.
@@ -53,6 +54,7 @@ we will add a repo hosted by SaltStack
      personal_access_token: <<Your personal access token >>
      ssh_key_file: /etc/salt/keys/<< your-key >>
      ssh_key_names: <<name you chose on Digital Ocean>>
+   
    ```
 1. in `/etc/salt/cloud.profiles.d/do.conf` add a profile.
    My file looks like this: 
@@ -110,6 +112,7 @@ we will add a repo hosted by SaltStack
      "when_done": "destroy",
      "campaign": "testing"
    }
+
 	```
 1. You can now run run spiderweg as `$ ./spiderweb.py config.json$
 1. The created Minions should self destruct as soon as they are done measuring and uploading.
