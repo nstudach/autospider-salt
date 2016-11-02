@@ -114,6 +114,6 @@ we will add a repo hosted by SaltStack
    }
 
 	```
-1. You can now run run spiderweg as `$ ./spiderweb.py config.json$
+1. You can now run run spiderweg as `$ ./spiderweb.py config.json`
 1. The created Minions should self destruct as soon as they are done measuring and uploading.
 1. Enjoy! 
