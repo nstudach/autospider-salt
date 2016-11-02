@@ -84,7 +84,7 @@ we will add a repo hosted by SaltStack
 1. You can delete it again by running
 	`$ salt-cloud -d test1
 
-## Copying the files
+## Step 3: Copying the files
 1. Copy the directories in the `srv` directory of this repository to `/srv/`
 1. Copy the files in the `etc/salt/master.d/` to `/etc/salt/master.d/`
 1. Copy `spiderweb` to `/opt/spiderweb`
@@ -95,7 +95,7 @@ we will add a repo hosted by SaltStack
     messages)
 1. restart salt-master `$ service salt-master restart`
 
-## Create a config file and running spiderweb
+## Step 4:Create a config file and running spiderweb
 1. In `/etc/spiderweb/` create the file `config.json`.
    You can find find more information about the format in the readme file of the
    spiderweb directory. My file looks like this:
