@@ -5,6 +5,7 @@ import sys
 import json
 import random
 import shutil
+import argparse
 
 import salt.cloud
 
@@ -83,7 +84,7 @@ class Minion():
 
         return {'grains': self.grains}
 
-    def spawn(self):
+    def spawn(self, dry_run):
         """
         Spawn the minion on the cloud provider
         """
@@ -105,9 +106,13 @@ class Minion():
         # For some reason you have to create a new 'client'
         # instance for every profile you want to use.
         # To be safe we just do it for every minion.
-        client = salt.cloud.CloudClient(path=SALT_CLOUD_CONFIG)
-        response = client.profile(self.profile.get_name(),
-                names=[self.get_name(),], minion=self.get_config())
+        if not dry_run:
+            client = salt.cloud.CloudClient(path=SALT_CLOUD_CONFIG)
+            response = client.profile(self.profile.get_name(),
+                    names=[self.get_name(),], minion=self.get_config())
+        else:
+            response = "<< No response, this was a dry run >>"
+
 
         # Restrong stdout and stderr
         sys.stdout.close()
@@ -167,12 +172,12 @@ class Profile():
             self.counter = self.counter + 1
             self.minions.add(Minion(name, self, grains))
 
-    def spawn(self):
+    def spawn(self, dry_run):
         """
         Spawn all the minions in this profile
         """
         for minion in self.minions:
-            minion.spawn()
+            minion.spawn(dry_run = dry_run)
 
 class Web():
     """
@@ -281,7 +286,7 @@ class Web():
                 grains = self.grains)
             self.profiles.add(new_profile)
 
-    def spawn(self):
+    def spawn(self, dry_run):
         """
         Spawn all profiles (and thus minion) in the web.
         """
@@ -291,7 +296,7 @@ class Web():
         self.copy_input()
 
         for profile in self.profiles:
-            profile.spawn()
+            profile.spawn(dry_run = dry_run)
 
     def copy_input(self):
         """
@@ -334,11 +339,34 @@ class Web():
 
         return info_string
 
-if __name__ == "__main__":
-    w = Web(sys.argv[1])
+def run(args):
+    w = Web(args.config_file)
     print("You are about to spawn the following web:")
     print(w.pretty_string())
-    user = raw_input("Continue? [Y/n] ")
-    if user in ('y', 'Y', ''):
-        w.spawn()
+    if(args.ask_confirmation):
+        user = raw_input("Continue? [Y/n] ")
+        if user in ('y', 'Y', ''):
+            pass
+        else:
+            return
+
+    w.spawn(dry_run = args.dry_run)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Spawn a web of spiders')
+
+    parser.add_argument('config_file', type=str,
+            help='Path to an JSON formated spiderweb config file')
+    
+    parser.add_argument('-y, --yes', dest='ask_confirmation',
+            action='store_const', const=False, default=True,
+            help='Assume yes for all questions')
+
+    parser.add_argument('--dry-run', dest='dry_run',
+            action='store_const', const=True, default=False,
+            help='Do everything except for spawning the minions')
+
+    args = parser.parse_args()
+
+    run(args)
     print('Goodnight')
