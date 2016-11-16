@@ -1,6 +1,10 @@
-testing-repo:
-  pkgrepo.managed:
-    - name: "deb http://ftp.de.debian.org/debian/ testing main"
+testing-repos:
+  cmd.run:
+    - name: "sed -i -- 's/jessie/testing/g' /etc/apt/sources.list"
+
+upgrade-to-testing:
+  pkg.uptodate:
+    - refresh: True
 
 apt-install:
   pkg.installed:
@@ -18,7 +22,7 @@ apt-install:
       - python-pip
       - git
     - fromrepo: testing
-    - refresh: True
+    - refresh: False
 
 pip-install-pathspider:
   pip.installed:
