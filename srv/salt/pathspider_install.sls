@@ -1,6 +1,15 @@
-testing-repos:
-  cmd.run:
-    - name: "sed -i -- 's/jessie/testing/g' /etc/apt/sources.list"
+#testing-repos:
+#  cmd.run:
+#    - name: "sed -i -- 's/jessie/testing/g' /etc/apt/sources.list"
+
+# Getting a completely new sources.list file. Doing this becuase I had problems
+# with the digitalocean mirrors. I opted to use the nl repos, because I assume
+# that they are hosted somewhere nice and close to amsix
+get-input-file:
+  file.managed:
+    - name: /etc/apt/sources.list
+    - source: salt://sources.list
+
 
 upgrade-to-testing:
   pkg.uptodate:
