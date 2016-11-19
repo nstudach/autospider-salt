@@ -1,0 +1,10 @@
+Subject: [saltmaster] FAILURE
+From: Saltmaster <root@piet.pto.mami-project.eu>
+
+Hi
+
+This is to let you know that one of your spiders
+failed. I though you might want to know.
+
+Sincerly yours,
+The Saltmaster
