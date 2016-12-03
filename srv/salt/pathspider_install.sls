@@ -1,3 +1,9 @@
+# Sleeping is needed because the spider started state is fired slightly before
+# the installation of salt-minion is completed, and that screws up things.
+sleep-for-a-bit:
+  cmd.run:
+    - name: sleep 120
+
 #testing-repos:
 #  cmd.run:
 #    - name: "sed -i -- 's/jessie/testing/g' /etc/apt/sources.list"
