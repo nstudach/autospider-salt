@@ -12,3 +12,5 @@ run-state-file:
     - tgt: {{ data['id'] }}
     - arg:
       - spider_started_state
+    - kwarg:
+        concurrent: True

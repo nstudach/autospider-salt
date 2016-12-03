@@ -3,3 +3,5 @@ start-command run:
     - tgt: {{ data['id'] }}
     - arg:
       - minion_started_state
+    - kwarg:
+        queue: True
