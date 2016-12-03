@@ -5,15 +5,15 @@
 # Getting a completely new sources.list file. Doing this becuase I had problems
 # with the digitalocean mirrors. I opted to use the nl repos, because I assume
 # that they are hosted somewhere nice and close to amsix
+
 get-sources-file:
   file.managed:
     - name: /etc/apt/sources.list
     - source: salt://sources.list
 
-
-upgrade-to-testing:
-  pkg.uptodate:
-    - refresh: True
+refresh-packet-list:
+  cmd.run:
+    - name: "apt-get update"
 
 apt-install:
   pkg.installed:
@@ -30,8 +30,28 @@ apt-install:
       - python3-requests
       - python-pip
       - git
-    - fromrepo: testing
-    - refresh: False
+    - refresh: True
+
+#upgrade-to-testing:
+#  pkg.uptodate:
+#    - refresh: True
+#
+# I don't know why, but this package up to date stuff did not seem to really
+# Work. So I just use a command now
+
+#
+# This also does not work, because the minion kills the command when upgrading itself
+#upgrade-to-testing:
+#  cmd.run:
+#    - name: "apt-get update; DEBIAN_FRONTEND=noninteractive APT_LISTCHANGES_FRONTEND=none apt-get -o Dpkg::Options::='--force-confold' --force-yes -fuy dist-upgrade"
+#
+
+# Currently not running because the latest openssl breaks salt
+#run-apt-dist-upgrade:
+#  module.run:
+#      - name: pkg.upgrade
+#      - refresh: True
+#      - dist_upgrade: True
 
 pip-install-pathspider:
   pip.installed:
