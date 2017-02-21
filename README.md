@@ -29,7 +29,7 @@ we will add a repo hosted by SaltStack
    `$ echo "deb http://repo.saltstack.com/apt/debian/8/amd64/latest jessie main" >> /etc/apt/sources.list`
 1. Update apt cache: `$ apt update`
 1. Install the required SaltStack packages:
-    `$ apt install salt-master salt-cloud salt-api`
+    `$ apt install salt-master salt-cloud salt-api salt-minion`
 
 ## Step 2: Configure Salt Cloud
 
@@ -86,16 +86,17 @@ we will add a repo hosted by SaltStack
 1. You can delete it again by running
 	`$ salt-cloud -d test1
 
-## Step 3: Copying the files
-1. Copy the directories in the `srv` directory of this repository to `/srv/`
-1. Copy the files in the `etc/salt/master.d/` to `/etc/salt/master.d/`
-1. Copy `spiderweb` to `/opt/spiderweb`
+## Step 3: Symlink the files
+1. Symlink the directories in the `srv` directory of this repository to `/srv/`
+1. Symlink the files in the `etc/salt/` to `/etc/salt/`
+1. Symlink `spiderweb` to `/opt/spiderweb`
 1. Since we did not configure, comment out the slack related sections in 
    `/srv/salt/spider_completed_state.sls`, `/srv/salt/spider_started_state.sls`
    and `/srv/salt/spider_failed_state.sls`.
    (Things will still work if you don't do this, but you might see some error
     messages)
 1. restart salt-master `$ service salt-master restart`
+1. restart salt-minion `$ service salt-minion restart`
 
 ## Step 4:Create a config file and running spiderweb
 1. In `/etc/spiderweb/` create the file `config.json`.
@@ -114,6 +115,8 @@ we will add a repo hosted by SaltStack
    }
 
 	```
-1. You can now run run spiderweg as `$ ./spiderweb.py config.json`
+1. You can now run run spiderweb as `$ ./spiderweb.py config.json`
 1. The created Minions should self destruct as soon as they are done measuring and uploading.
-1. Enjoy! 
+1. Enjoy!
+
+* note that spiderweb uses the production-piet branch of pathspider*
