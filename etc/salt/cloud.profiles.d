@@ -1,1 +1,0 @@
-/etc/salt/cloud.profiles.d
