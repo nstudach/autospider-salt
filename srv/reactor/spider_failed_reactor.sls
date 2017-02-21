@@ -11,7 +11,7 @@ send-email:
   local.cmd.run:
     - tgt: master-minion
     - arg:
-      - 'sendmail piet@devae.re < /srv/salt/failmail.txt'
+      - 'sendmail trammell@tik.ee.ethz.ch < /srv/salt/failmail.txt'
 
 run-state-file:
   local.state.apply:
