@@ -1,0 +1,19 @@
+do-ams3-2048:
+  - t2-ams3-post-conn
+  - t2-ams3-conn
+
+do-sgp1-2048:
+  - t2-sgp1-post-conn
+  - t2-sgp1-conn
+
+do-sfo1-2048:
+  - t2-sfo1-post-conn
+  - t2-sfo1-conn
+
+do-tor1-2048:
+  - t2-tor1-post-conn
+  - t2-tor1-conn
+
+do-lon1-2048:
+  - t2-lon1-post-con
+  - t2-lon1-con

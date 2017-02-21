@@ -3,4 +3,4 @@ slack-message:
     - channel: '#minions'
     - from_name: "Minion {{grains['id']}}"
     - message: 'Pathspider measurement FAILED'
-    - icon: 'https://devae.re/f/eth/pathspider/icons/warning.jpg'
+    - icon: 'https://devae.re/f/eth/pathspider/icons/error.png'
