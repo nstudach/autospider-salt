@@ -7,6 +7,7 @@ import copy
 import random
 import shutil
 import argparse
+import traceback
 
 import salt.cloud
 
@@ -109,8 +110,12 @@ class Minion():
         # To be safe we just do it for every minion.
         if not dry_run:
             client = salt.cloud.CloudClient(path=SALT_CLOUD_CONFIG)
-            response = client.profile(self.profile.get_name(),
+            try:
+                response = client.profile(self.profile.get_name(),
                     names=[self.get_name(),], minion=self.get_config())
+            except:
+                traceback.print_exc()
+                response = "ERROR: failed to create minion"
         else:
             response = "<< No response, this was a dry run >>"
 
