@@ -8,6 +8,7 @@ import random
 import shutil
 import argparse
 import traceback
+import subprocess
 
 import salt.cloud
 
@@ -116,6 +117,7 @@ class Minion():
             except:
                 traceback.print_exc()
                 response = "ERROR: failed to create minion"
+                subprocess.run("sendmail `cat /srv/salt/failmail_recipient.txt` < /srv/salt/failmail.txt", shell=True)
         else:
             response = "<< No response, this was a dry run >>"
 
