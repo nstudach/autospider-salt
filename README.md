@@ -117,6 +117,12 @@ we will add a repo hosted by SaltStack
 	```
 1. You can now run run spiderweb as `$ ./spiderweb.py config.json`
 1. The created Minions should self destruct as soon as they are done measuring and uploading.
+
+## Step 5: Misc.
+
+1. Install an MTA. Make sure that it has a sendmail compatibility interface.
+1. Modify the email address in /srv/salt/failmail_recipient.txt
+1. Modify the header in /srv/salt/failmail.txt
+1. note that spiderweb uses the production-piet branch of pathspider
 1. Enjoy!
 
-* note that spiderweb uses the production-piet branch of pathspider*
