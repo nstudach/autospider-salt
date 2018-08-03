@@ -6,10 +6,10 @@ disable-tcp-ecn-fallback:
 
 get-input-file:
   file.managed:
-    - name: /tmp/pathspider_in.csv
-    - source: salt://pathspider_inputs/{{inputfile}}.csv
+    - name: /tmp/pathspider_in.ndjson
+    - source: salt://pathspider_inputs/{{inputfile}}.ndjson
 
 run-pathspider:
   module.run:
     - name: pathspider.run
-    - inputfile: /tmp/pathspider_in.csv
+    - inputfile: /tmp/pathspider_in.ndjson

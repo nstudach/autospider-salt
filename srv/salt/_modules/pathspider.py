@@ -59,7 +59,9 @@ def _execute_spider(inputfile, outputfile, errorfile,
     _send_salt_event('spider', 'started', finished = False, success = True)
     # run pathspider
     # TODO error handling, what if pathspider is not installed?
-    spider = subprocess.Popen(["pathspider"] + pathspider_args, 
+    
+    #Pathspider is started here -> find way to read out location from grain and add to argument
+    spider = subprocess.Popen(["pspdr"] + pathspider_args, 
     #spider = subprocess.Popen("pathspider -i eth0 -w 50 ecn", shell=True 
             stdout = outputfile, stdin = inputfile, stderr = errorfile)
 
@@ -105,31 +107,30 @@ def run(inputfile = None, argstring=None, timeout=0, debug=0):
     if argstring == None:
         if 'pathspider_args' in __grains__:
             argstring = __grains__['pathspider_args']
-            # The guys (and girls) who wrote salt are clearly to cool to use
-            # vanilla dicts. So they had to write a wrapper around it. However,
-            # that means that we cant unpack it. So we first get the actual
-            # dict from the wrapper.
+            # Salt does not use vanilla dicts. So we use a wrapper around it. However,
+            # that means that we cant unpack it. So we first get the actual dict from the wrapper.
             grains = __grains__._dict()
             try:
                 argstring = argstring.format(**grains)
             except KeyError:
                 _send_salt_event('spider', 'failed', finished = True,
-                    succes = False, error = 'KeyError',
+                    success = False, error = 'KeyError',
                     message = 'Looks like the pathspider_args string tries to'
                               ' use grains that are not pressent')
                 return False
         else:
-            argstring = "-i eth0 -w 50 ecn"
+            #If arguments not provided close program
+            return 'ERROR: no arguments supplied'
     pathspider_args = shlex.split(argstring)
    
     if inputfile == None:
-        if os.path.isfile('/tmp/pathspider-in.csv'):
-            inputfile = '/tmp/pathspider-in.csv'
+        if os.path.isfile('/tmp/pathspider-in.ndjson'):
+            inputfile = '/tmp/pathspider-in.ndjson'
         else:
             return 'ERROR: no input file supplied'
 
      
-    # open al the files to feed to pathspider 
+    # open all the files to feed to pathspider 
     if not os.path.exists('/var/pathspider'):
         os.makedirs('var/pathspider')
     if debug:

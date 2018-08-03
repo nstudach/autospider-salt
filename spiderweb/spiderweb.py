@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 
 import os
 import sys
@@ -14,8 +13,9 @@ import salt.cloud
 
 TEMPFILE_LOCATION = "/tmp/spiderweb"
 SALT_CLOUD_CONFIG = "/etc/salt/cloud"
-INPUT_FILE_LOCATION = "/srv/salt/pathspider_inputs/"
+INPUT_FILE_LOCATION = "srv/salt/pathspider_inputs"
 
+# probably not used
 def readout_config(path):
     config_file = open(path)
     config = json.loads(config_file.read())
@@ -254,24 +254,15 @@ class Web():
         self.config = json.loads(config_file.read())
         config_file.close()
 
-        self.verify_config()
-
         self.read_grains_from_config()
         self.add_minions_from_config()
 
         return self.config
 
-    def verify_config(self):
-        """
-        Verify the sanity of the config file
-        """
-
-        #TODO
-        pass
-
     def read_grains_from_config(self):
         """
         Read the grains that are present in the config
+        Add additional grains
         """
 
         grains = copy.deepcopy(self.config)
@@ -281,7 +272,7 @@ class Web():
 
     def add_minions_from_config(self):
         """
-        Add the minions that are defined in the config to the web
+        Add the minions that are defined in the spiderweb config to the web
         """
 
         for profile in self.config['minions']:
@@ -309,9 +300,11 @@ class Web():
         and name it to the web.
         """
 
-        destination = "{}/{}.csv".format(INPUT_FILE_LOCATION, self.get_name())
+        destination = "{}/{}.ndjson".format(INPUT_FILE_LOCATION, self.get_name())
+        print("Destination: " + destination)
+        print("Input file: " + self.config['input_file'])
         shutil.copy(self.config['input_file'], destination)
-            
+        
 
     def pretty_grains(self):
         """
@@ -345,16 +338,17 @@ class Web():
         return info_string
 
 def run(args):
+    # creates the web and minions
     w = Web(args.config_file)
     print("You are about to spawn the following web:")
     print(w.pretty_string())
     if(args.ask_confirmation):
-        user = raw_input("Continue? [Y/n] ")
+        user = input("Continue? [Y/n] ")
         if user in ('y', 'Y', ''):
             pass
         else:
             return
-
+    # spawn the web
     w.spawn(dry_run = args.dry_run)
 
 if __name__ == "__main__":

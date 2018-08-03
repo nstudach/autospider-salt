@@ -36,32 +36,18 @@ apt-install:
       - python3-requests
       - python-pip
       - git
+      - python3-straight.plugin
+      - python3-pyroute2
+      - python3-scapy-python3
+      - python3-stem
+      - python3-dnslib
+      - python3-pycurl
+      - python3-nose
     - refresh: True
-
-#upgrade-to-testing:
-#  pkg.uptodate:
-#    - refresh: True
-#
-# I don't know why, but this package up to date stuff did not seem to really
-# Work. So I just use a command now
-
-#
-# This also does not work, because the minion kills the command when upgrading itself
-#upgrade-to-testing:
-#  cmd.run:
-#    - name: "apt-get update; DEBIAN_FRONTEND=noninteractive APT_LISTCHANGES_FRONTEND=none apt-get -o Dpkg::Options::='--force-confold' --force-yes -fuy dist-upgrade"
-#
-
-# Currently not running because the latest openssl breaks salt
-#run-apt-dist-upgrade:
-#  module.run:
-#      - name: pkg.upgrade
-#      - refresh: True
-#      - dist_upgrade: True
 
 pip-install-pathspider:
   pip.installed:
-    - editable: git+git://github.com/mami-project/pathspider.git@production-piet#egg=pathspider
+    - editable: git+git://github.com/nstudach/pathspider.git@uploader#egg=pathspider
     - source: True
     - bin_env: /usr/bin/pip3
 
