@@ -343,7 +343,7 @@ def run(args):
     print("You are about to spawn the following web:")
     print(w.pretty_string())
     if(args.ask_confirmation):
-        user = input("Continue? [Y/n] ")
+        user = raw_input("Continue? [Y/n] ")
         if user in ('y', 'Y', ''):
             pass
         else:
