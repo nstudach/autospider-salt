@@ -1,0 +1,9 @@
+{
+    "pathspider_args": "-i eth0 -w50 --geo --autoname --upload CAMPAIGN TOKEN ecn",
+    "input_file": "webtest.ndjson",
+    "minions":
+        {"do-sfo1-512": 0,
+         "do-ams3-512": 1
+        },
+    "when_done": "destroy"
+}
