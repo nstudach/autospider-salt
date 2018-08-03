@@ -50,7 +50,7 @@ we will add a repo hosted by SaltStack
     Read out key: `$ nano /etc/salt/keys/KEYNAME.pub`
 1. While you are on the Digital Oceans site, create yourself a `personal access token`
 1. in `/etc/salt/cloud.providers.d/do.conf` add a configuration for Digital Ocean.
-   There must be an empty space after : or salt will report an error.
+   There must be an empty space after `:` or salt will report an error.
    Mine looks like this:
    ```
    do-mami:
@@ -89,7 +89,7 @@ we will add a repo hosted by SaltStack
     This can take a few minutes to run.
 
 1. You can delete it again by running
-    `$ salt-cloud -d test1
+    `$ salt-cloud -d test1`
 
 ## Step 3: Symlink the files
 1. Symlink the directories in the `srv` directory of this repository to `/srv/`
@@ -104,9 +104,11 @@ we will add a repo hosted by SaltStack
 1. restart salt-minion `$ service salt-minion restart`
 
 ## Step 4: Install spiderweb
-1. Download repository from github
-
-## Step 5:Create a config file and running spiderweb
+1. Download repository from github with
+   `$  cd ~/desired_destination`
+   `$  git clone <URL>`
+   
+## Step 5: Create a config file and running spiderweb
 1. In `/etc/spiderweb/` create the file `config.json`.
    You can find find more information about the format in the readme file of the
    spiderweb directory. My file looks like this:
